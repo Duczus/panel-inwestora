@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Panel Inwestora</title>
+<title>Crypto Market Radar</title>
 
 <style>
 
 body{
-background:#111;
+background:#0f1115;
 color:white;
 font-family:Arial;
 text-align:center;
@@ -23,25 +22,31 @@ display:grid;
 grid-template-columns:1fr 1fr;
 gap:15px;
 padding:20px;
+max-width:500px;
+margin:auto;
 }
 
 .card{
-background:#1c1c1c;
+background:#1c1f26;
 padding:20px;
-border-radius:10px;
-font-size:18px;
+border-radius:12px;
 }
 
-.big{
+.value{
 font-size:26px;
 margin-top:10px;
+}
+
+.mode{
+font-size:34px;
+margin-top:15px;
 }
 
 button{
 margin-top:20px;
 padding:15px 25px;
 font-size:18px;
-background:#2e7df6;
+background:#3b82f6;
 border:none;
 border-radius:10px;
 color:white;
@@ -53,56 +58,105 @@ color:white;
 
 <body>
 
-<h1>Panel Inwestora</h1>
+<h1>Crypto Market Radar</h1>
 
 <div class="grid">
 
 <div class="card">
 BTC
-<div id="btc" class="big">...</div>
+<div id="btc" class="value">...</div>
 </div>
 
 <div class="card">
 ETH
-<div id="eth" class="big">...</div>
+<div id="eth" class="value">...</div>
 </div>
 
 <div class="card">
-GOLD
-<div id="gold" class="big">...</div>
+BTC Dominance
+<div id="dom" class="value">...</div>
 </div>
 
 <div class="card">
-MARKET FEAR
-<div id="fear" class="big">...</div>
+Market Cap
+<div id="cap" class="value">...</div>
+</div>
+
+<div class="card">
+Fear & Greed
+<div id="fear" class="value">...</div>
 </div>
 
 </div>
 
-<button onclick="load()">Odśwież dane</button>
+<div class="card">
+Market Mode
+<div id="mode" class="mode">...</div>
+</div>
+
+<button onclick="load()">Refresh</button>
 
 <script>
 
 async function load(){
 
-// BTC + ETH + GOLD z CoinGecko
-let r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether-gold&vs_currencies=usd")
+// MARKET DATA
+let r = await fetch("https://api.coingecko.com/api/v3/global")
 let data = await r.json()
 
-document.getElementById("btc").innerText = data.bitcoin.usd + " USD"
-document.getElementById("eth").innerText = data.ethereum.usd + " USD"
-document.getElementById("gold").innerText = data["tether-gold"].usd + " USD"
+let cap = data.data.total_market_cap.usd
+let dom = data.data.market_cap_percentage.btc
+
+document.getElementById("cap").innerText =
+(cap/1000000000000).toFixed(2)+" T"
+
+document.getElementById("dom").innerText =
+dom.toFixed(1)+" %"
 
 
-// Fear & Greed
+// BTC ETH
+let p = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd")
+let price = await p.json()
+
+let btc = price.bitcoin.usd
+let eth = price.ethereum.usd
+
+document.getElementById("btc").innerText =
+btc.toLocaleString()+" $"
+
+document.getElementById("eth").innerText =
+eth.toLocaleString()+" $"
+
+
+// FEAR GREED
 let f = await fetch("https://api.alternative.me/fng/")
 let fear = await f.json()
 
-document.getElementById("fear").innerText = fear.data[0].value
+let fearValue = fear.data[0].value
+
+document.getElementById("fear").innerText =
+fearValue
+
+
+// MARKET MODE
+
+let mode="🟡 NEUTRAL"
+
+if(fearValue<40 && dom>50){
+mode="🟢 BULLISH"
+}
+
+if(fearValue>70){
+mode="🔴 BEARISH"
+}
+
+document.getElementById("mode").innerText=mode
 
 }
 
 load()
+
+setInterval(load,30000)
 
 </script>
 
