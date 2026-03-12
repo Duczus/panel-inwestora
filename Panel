@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel inwestora</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+}
+
+.card{
+background:#222;
+padding:20px;
+margin:10px;
+border-radius:10px;
+font-size:20px;
+}
+
+button{
+padding:15px;
+font-size:18px;
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Panel inwestora</h1>
+
+<div class="card">BTC: <span id="btc">...</span></div>
+<div class="card">Gold: <span id="gold">...</span></div>
+
+<button onclick="load()">Odśwież dane</button>
+
+<script>
+
+async function load(){
+
+let btc = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd")
+let btcData = await btc.json()
+
+document.getElementById("btc").innerText = btcData.bitcoin.usd + " USD"
+
+let gold = await fetch("https://api.metals.live/v1/spot/gold")
+let goldData = await gold.json()
+
+document.get
